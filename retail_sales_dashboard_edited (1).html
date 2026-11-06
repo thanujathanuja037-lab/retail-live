@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retail Sales Analysis & Forecasting</title>
+<style>
+:root{--y:#f5c400;--ink:#263238;--mut:#718096;--bg:#fffdf5;--line:#eee7cc;--g:#5d9b45;--sh:0 8px 25px rgba(78,65,12,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:Inter,Arial,sans-serif;color:var(--ink)}
+button,input{font:inherit}.hidden{display:none!important}
+#loginScreen{min-height:100vh;display:grid;place-items:center;padding:22px;position:relative;overflow:hidden;background:linear-gradient(180deg,#fff3b0 0%,#ffe066 45%,#f5c400 100%)}
+.mart-scene{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.mart-banner{position:absolute;top:22px;left:50%;transform:translateX(-50%);background:#263238;color:#ffd83a;padding:9px 26px;border-radius:40px;font-weight:800;letter-spacing:2px;font-size:14px;box-shadow:0 6px 18px #0003;white-space:nowrap;z-index:1}
+.login-card{position:relative;z-index:2}
+.float{animation:fl 6s ease-in-out infinite}.float.d2{animation-delay:-2s}.float.d3{animation-delay:-4s}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.cart-move{animation:cm 14s linear infinite}
+@keyframes cm{0%{transform:translateX(-160px)}100%{transform:translateX(calc(100vw + 160px))}}
+.login-card{width:min(100%,410px);background:#fff;padding:36px;border-radius:23px;box-shadow:0 22px 55px #7d65052b}
+.login-card h1{text-align:center;margin:8px 0;font-size:25px}.intro{text-align:center;color:var(--mut);font-size:14px;line-height:1.5;margin:0 0 22px}
+.field{margin:14px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+.field input{width:100%;padding:12px;border:1px solid #e5dfc8;border-radius:10px}
+.login-btn{width:100%;border:0;background:var(--y);padding:14px;border-radius:10px;font-weight:800;cursor:pointer}
+#error{color:#c62828;text-align:center;font-size:13px;min-height:17px}
+.sidebar{position:fixed;inset:0 auto 0 0;width:245px;background:#fff;border-right:1px solid var(--line);padding:24px 15px;z-index:5;display:flex;flex-direction:column}
+.brand{padding:0 12px 22px;font-size:17px;font-weight:800}.brand small{display:block;font-size:11px;color:var(--mut);font-weight:500;margin-top:5px}
+.nav-btn{border:0;background:transparent;text-align:left;padding:12px;border-radius:10px;margin:3px 0;color:#59636a;cursor:pointer;font-size:13px;font-weight:650}
+.nav-btn:hover{background:#fff9df}.nav-btn.active{background:#fff1ad;color:#473900}
+.side-bot{margin-top:auto;padding:14px 12px 4px;border-top:1px solid var(--line);font-size:12px;color:var(--mut);line-height:1.6}
+.logout{margin-top:10px;width:100%;border:1px solid var(--line);background:#fff;padding:10px;border-radius:9px;cursor:pointer}
+.main{margin-left:245px}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:3}
+.crumb{font-size:13px;color:var(--mut)}.chip{background:#fff5c7;padding:8px 13px;border-radius:30px;font-size:12px;font-weight:700}
+.content{width:min(1200px,100%);margin:auto;padding:28px 30px 40px}
+.page{display:none}.page.active{display:block}
+.head{margin-bottom:20px}.head h1{font-size:26px;margin:4px 0 6px}.head p{margin:0;color:var(--mut);font-size:13px}.eyebrow{font-size:10px;letter-spacing:1.4px;color:#a18400;font-weight:800}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--sh)}
+.ml{font-size:12px;color:var(--mut)}.mv{font-size:25px;font-weight:800;margin:6px 0 4px}.mn{font-size:11px;color:var(--g)}
+.grid{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;margin-top:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+h3{font-size:16px;margin:0 0 4px}.sub{font-size:11px;color:var(--mut);margin:0 0 14px}
+.cb{height:250px}canvas{width:100%;height:100%;display:block}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--mut);margin-top:10px}.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid #f0eddf}
+th{color:#92958c;font-size:10px;text-transform:uppercase;letter-spacing:.5px}.tw{overflow-x:auto}
+.tag{background:#edf6e8;color:#4d873b;border-radius:20px;padding:4px 9px;font-size:10px;font-weight:700}.tag.w{background:#fff1ad;color:#735d00}
+.note{background:#f0f7eb;color:#557c43;padding:13px 15px;border-radius:10px;font-size:12.5px;line-height:1.6;margin-top:14px}
+.desc{font-size:13px;line-height:1.7;color:#455560}.desc ul{padding-left:18px;margin:8px 0 0}
+.bar{display:grid;grid-template-columns:100px 1fr 60px;align-items:center;gap:10px;font-size:12px;margin:14px 0}
+.track{height:10px;background:#f5f1df;border-radius:20px;overflow:hidden}.fill{height:100%;background:linear-gradient(90deg,#f2c400,#f8df70)}
+.big{background:linear-gradient(120deg,#fff0a6,#ffe16a);border:0;padding:24px}.big .mv{font-size:38px}
+.footer{text-align:center;color:#a0a08f;font-size:11px;padding:20px}
+.mm{display:none;border:0;background:#fff2b2;padding:8px 11px;border-radius:8px;margin-right:10px}
+@media(max-width:950px){.cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.sidebar{transform:translateX(-100%);transition:transform .2s}.sidebar.open{transform:none}.main{margin-left:0}.mm{display:block}.topbar{padding:0 14px}.content{padding:20px 14px}.grid,.grid2{grid-template-columns:1fr}.cards{gap:9px}.mv{font-size:21px}}
+.nav-link{display:block;text-decoration:none;text-align:left;padding:12px;border-radius:10px;margin:3px 0;color:#473900;background:#ffe16a;font-size:13px;font-weight:700}.nav-link:hover{background:#f5c400}
+.pbi-btn{display:inline-block;margin-top:12px;background:#263238;color:#ffd83a;text-decoration:none;padding:10px 18px;border-radius:10px;font-weight:700;font-size:13px}
+
+/* ===== v2 redesign ===== */
+:root{--navy:#111c33;--navy2:#1b2a4a;--amb:#f5a800;--bg:#f4f6fb;--line:#e4e8f1;--ink:#1c2740;--mut:#6b7691;--sh:0 4px 18px rgba(17,28,51,.07)}
+body{background:var(--bg);color:var(--ink);font-family:'Segoe UI',Inter,Arial,sans-serif}
+.sidebar{background:linear-gradient(180deg,var(--navy),var(--navy2));border:0;width:250px}
+.brand{color:#fff;font-size:18px;padding-bottom:20px}.brand small{color:#9fb0d3}
+.brand:before{content:"🛒";display:inline-grid;place-items:center;width:34px;height:34px;background:var(--amb);border-radius:10px;margin-right:10px;vertical-align:middle}
+.nav-grp{font-size:10px;letter-spacing:1.5px;color:#6d7fa8;margin:16px 12px 4px;font-weight:700}
+.nav-btn{color:#c7d2ee;font-weight:600}.nav-btn:hover{background:#ffffff14}.nav-btn.active{background:var(--amb);color:#111c33}
+.nav-link{background:#ffffff14;color:#ffd978}.nav-link:hover{background:#ffffff26}
+.side-bot{color:#9fb0d3;border-color:#ffffff22}.logout{background:#ffffff14;color:#fff;border-color:#ffffff30}
+.main{margin-left:250px}.topbar{background:#fff;border-color:var(--line)}.chip{background:#fff3d1;color:#7a5600}
+.card{border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh);transition:transform .15s}.card:hover{transform:translateY(-2px)}
+.cards .card{border-top:4px solid var(--amb)}.cards .card:nth-child(2){border-top-color:#2f80ed}.cards .card:nth-child(3){border-top-color:#27ae60}.cards .card:nth-child(4){border-top-color:#8e44ad}
+.mv{color:var(--navy)}.head h1{color:var(--navy)}.eyebrow{color:var(--amb)}
+.big{background:linear-gradient(120deg,var(--navy),#2c4a86);color:#fff}.big .ml,.big .mv{color:#fff!important}
+.fill{background:linear-gradient(90deg,#f5a800,#ffd978)}th{background:#f7f9fd}tr:hover td{background:#fafbff}
+.note{background:#eef4ff;color:#2c4a86;border-left:4px solid #2f80ed}
+.hero{background:linear-gradient(120deg,var(--navy),#2c4a86);color:#fff;border-radius:20px;padding:24px 28px;margin-bottom:18px;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.hero h2{margin:0 0 6px;font-size:21px}.hero p{margin:0;color:#c7d2ee;font-size:13px;max-width:560px;line-height:1.6}
+.flow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}.flow>div{flex:1;min-width:140px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center;font-size:12px;box-shadow:var(--sh)}
+.flow b{display:block;font-size:13px;margin:4px 0}.flow i{font-style:normal;font-size:24px}.hero .flow>div{background:#ffffff14;border-color:#ffffff25;color:#fff;min-width:110px}
+.ar{align-self:center;color:var(--amb);font-weight:800;flex:0!important;min-width:0!important;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.chips span{display:inline-block;background:#eef2fa;border-radius:20px;padding:5px 11px;margin:3px;font-size:11px;font-weight:600}
+.ok{background:#e3f6e9;color:#1e8a45;border-radius:20px;padding:3px 10px;font-size:10px;font-weight:800}
+@media(max-width:800px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<section id="loginScreen">
+  <svg class="mart-scene" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><pattern id="stripe" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="30" height="60" fill="#e53935"/><rect x="30" width="30" height="60" fill="#fff"/></pattern></defs>
+    <!-- shelves -->
+    <g opacity=".95">
+      <rect x="0" y="560" width="1200" height="240" fill="#263238" opacity=".12"/>
+      <rect x="0" y="470" width="1200" height="12" fill="#8d6e63"/><rect x="0" y="640" width="1200" height="12" fill="#8d6e63"/>
+      <!-- shelf row 1 products -->
+      <g>
+        <rect x="40" y="410" width="46" height="60" rx="6" fill="#e53935"/><rect x="95" y="420" width="40" height="50" rx="6" fill="#43a047"/><rect x="145" y="400" width="50" height="70" rx="6" fill="#1e88e5"/>
+        <rect x="260" y="415" width="44" height="55" rx="6" fill="#8e24aa"/><rect x="312" y="405" width="48" height="65" rx="6" fill="#fb8c00"/><rect x="370" y="420" width="40" height="50" rx="6" fill="#e53935"/>
+        <rect x="800" y="405" width="48" height="65" rx="6" fill="#43a047"/><rect x="856" y="415" width="44" height="55" rx="6" fill="#1e88e5"/><rect x="908" y="400" width="50" height="70" rx="6" fill="#e53935"/>
+        <rect x="1020" y="418" width="42" height="52" rx="6" fill="#fb8c00"/><rect x="1070" y="405" width="48" height="65" rx="6" fill="#8e24aa"/><rect x="1126" y="415" width="40" height="55" rx="6" fill="#43a047"/>
+      </g>
+      <!-- shelf row 2 products -->
+      <g>
+        <rect x="60" y="585" width="52" height="55" rx="8" fill="#fb8c00"/><rect x="122" y="595" width="44" height="45" rx="8" fill="#e53935"/><rect x="176" y="580" width="52" height="60" rx="8" fill="#43a047"/>
+        <rect x="300" y="590" width="46" height="50" rx="8" fill="#1e88e5"/><rect x="356" y="580" width="54" height="60" rx="8" fill="#8e24aa"/>
+        <rect x="820" y="585" width="50" height="55" rx="8" fill="#e53935"/><rect x="880" y="595" width="46" height="45" rx="8" fill="#fb8c00"/><rect x="936" y="580" width="52" height="60" rx="8" fill="#1e88e5"/>
+        <rect x="1040" y="590" width="48" height="50" rx="8" fill="#43a047"/><rect x="1098" y="580" width="54" height="60" rx="8" fill="#e53935"/>
+      </g>
+    </g>
+    <!-- awning -->
+    <rect x="0" y="0" width="1200" height="70" fill="url(#stripe)"/>
+    <path d="M0 70 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 q30 28 60 0 Z" fill="url(#stripe)"/>
+    <!-- floating shopping bags & price tags -->
+    <g class="float"><path d="M110 170h90l10 120h-110z" fill="#e53935"/><path d="M135 170v-18a20 20 0 0 1 40 0v18" fill="none" stroke="#b71c1c" stroke-width="6"/><text x="155" y="245" font-size="34" text-anchor="middle" fill="#fff" font-weight="800">Q</text></g>
+    <g class="float d2"><path d="M1000 150h90l10 120h-110z" fill="#1e88e5"/><path d="M1025 150v-18a20 20 0 0 1 40 0v18" fill="none" stroke="#0d47a1" stroke-width="6"/><text x="1045" y="225" font-size="34" text-anchor="middle" fill="#fff" font-weight="800">Q</text></g>
+    <g class="float d3"><path d="M960 330l70-6 30 40-70 6z" fill="#fff" stroke="#263238" stroke-width="3"/><circle cx="1038" cy="352" r="5" fill="#263238"/><text x="1000" y="356" font-size="16" fill="#e53935" font-weight="800" text-anchor="middle" transform="rotate(5 1000 356)">SALE</text></g>
+    <g class="float d2"><path d="M150 330l70-6 30 40-70 6z" fill="#fff" stroke="#263238" stroke-width="3"/><circle cx="228" cy="352" r="5" fill="#263238"/><text x="190" y="356" font-size="16" fill="#43a047" font-weight="800" text-anchor="middle" transform="rotate(5 190 356)">-20%</text></g>
+    <!-- shopping cart on floor -->
+    <g class="cart-move" style="position:absolute"><g transform="translate(0,690)">
+      <path d="M0 0h20l20 60h90l18-46H34" fill="none" stroke="#263238" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="44" y="14" width="96" height="36" fill="#263238" opacity=".18"/>
+      <circle cx="58" cy="80" r="9" fill="#263238"/><circle cx="120" cy="80" r="9" fill="#263238"/></g></g>
+    <!-- floor tiles -->
+    <g stroke="#263238" stroke-opacity=".12" stroke-width="2"><line x1="0" y1="740" x2="1200" y2="740"/><line x1="200" y1="740" x2="120" y2="800"/><line x1="500" y1="740" x2="470" y2="800"/><line x1="800" y1="740" x2="830" y2="800"/><line x1="1100" y1="740" x2="1180" y2="800"/></g>
+  </svg>
+  <div class="mart-banner">🛒 QUICKMART RETAIL</div>
+  <div class="login-card">
+    <h1>Retail Sales Portal</h1>
+    <p class="intro">Sign in to explore sales analytics, revenue insights and the 6-month forecast.</p>
+    <form id="loginForm">
+      <div class="field"><label for="username">Username</label><input id="username" autocomplete="username" required></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
+      <button class="login-btn" type="submit">Sign in to dashboard</button>
+      <p id="error" role="alert"></p>
+    </form>
+  </div>
+</section>
+
+<div id="app" class="hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">Retail Insights<small>QuickMart Retail · 2026–2027</small></div>
+    <button class="nav-btn active" data-page="overview">Overview</button>
+    <button class="nav-btn" data-page="analytics">Sales Analytics</button>
+    <button class="nav-btn" data-page="revenue">Total Revenue</button>
+    <button class="nav-btn" data-page="forecast">Forecasting</button>
+    <button class="nav-btn" data-page="charts">Charts &amp; Reports</button>
+    <button class="nav-btn" data-page="products">Top Products</button>
+    <div class="nav-grp">EXTERNAL</div>
+    <a class="nav-link" href="https://drive.google.com/file/d/15e1X2-lRyRUr1VVEwA6QHwhzOLHmF6ab/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">📊 Power BI Dashboard ↗</a>
+    <div class="side-bot">Retail Sales Analysis<br>Academic Project<button class="logout" id="logoutBtn">Log out</button></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div style="display:flex;align-items:center"><button class="mm" id="mm">☰</button><span class="crumb" id="crumb">Workspace / Overview</span></div><span class="chip">● Admin</span></header>
+    <div class="content">
+
+      <section class="page active" id="page-overview">
+        <div class="head"><div class="eyebrow">DASHBOARD OVERVIEW</div><h1>Retail Sales Analysis &amp; Forecasting</h1><p>Snapshot of 4 years of QuickMart Retail sales (Jan 2015 – Dec 2018). All values are in US dollars.</p></div>
+        <div class="hero"><div><h2>QuickMart Retail · Sales Intelligence</h2><p>An end-to-end analytics project: 9,800 transactions from Jan 2015 to Dec 2018, visualised in Power BI, with a 6-month Holt-Winters forecast.</p><a class="pbi-btn" style="background:#f5a800;color:#111c33" href="https://drive.google.com/file/d/15e1X2-lRyRUr1VVEwA6QHwhzOLHmF6ab/view?usp=drivesdk" target="_blank" rel="noopener noreferrer">Open Power BI Dashboard ↗</a></div>
+          </div>
+        <div style="display:none"></div>
+        <div class="cards">
+          <div class="card"><div class="ml">Total Revenue</div><div class="mv">$2.26M</div><div class="mn">$2,261,536.78 overall sales</div></div>
+          <div class="card"><div class="ml">Unique Orders</div><div class="mv">4,922</div><div class="mn">793 unique customers</div></div>
+          <div class="card"><div class="ml">Total Records</div><div class="mv">9,800</div><div class="mn">18 columns · 1,850+ products</div></div>
+          <div class="card"><div class="ml">Technology Share</div><div class="mv">36.59%</div><div class="mn">Top category · $827,455.87</div></div>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Monthly sales — selected months</h3><p class="sub">Sample months from SQL Query 7 · US dollars</p><div class="cb"><canvas id="c1"></canvas></div></div>
+          <div class="card"><h3>Category contribution</h3><p class="sub">Share of total sales</p><div class="cb"><canvas id="c2"></canvas></div><div class="legend"><span><i style="background:#e9b900"></i>Technology</span><span><i style="background:#83a96b"></i>Furniture</span><span><i style="background:#f4d96b"></i>Office Supplies</span></div></div>
+        </div>
+        <div class="grid2">
+          <div class="card desc"><h3>About this project</h3>
+            This dashboard presents the results of a retail sales analysis built for a fictional client, QuickMart Retail, and visualised here and in <b>Power BI</b>.
+            <ul><li>Coverage: 9,800 records, Jan 2015 – Dec 2018</li><li>Forecast: 6-month Holt-Winters projection</li><li>Presentation layer: Power BI and this web dashboard</li></ul></div>
+          <div class="card desc"><h3>Key insights</h3>
+            <ul><li>West and East together bring in about 61% of revenue; South is the weakest region at 17.2%.</li><li>The three categories are balanced, so the business does not depend on a single product line.</li><li>Sales peak in Q4 (Nov–Dec) and dip in Jan–Feb every year.</li><li>The Canon imageCLASS 2200 Advanced Copier ($61,599.82) earns almost 3× the second-ranked product.</li></ul></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-analytics">
+        <div class="head"><div class="eyebrow">PERFORMANCE INSIGHTS</div><h1>Sales Analytics</h1><p>Regional performance, category contribution and top products from the 9,800-record dataset.</p></div>
+        <div class="cards">
+          <div class="card"><div class="ml">Average order value</div><div class="mv">$459.48</div><div class="mn">$2,261,536.78 ÷ 4,922 orders</div></div>
+          <div class="card"><div class="ml">Average sale (per line)</div><div class="mv">$230.77</div><div class="mn">Max $22,638.48 · Min $0.44</div></div>
+          <div class="card"><div class="ml">Top region</div><div class="mv">West</div><div class="mn">$710,219.68</div></div>
+          <div class="card"><div class="ml">Regions covered</div><div class="mv">4</div><div class="mn">West, East, Central, South</div></div>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Regional sales</h3><p class="sub">Total sales by region · US dollars</p><div class="cb"><canvas id="c3"></canvas></div></div>
+          <div class="card"><h3>Category analysis</h3><p class="sub">Percentage share by product category</p><div id="catBars"></div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h3>Regional performance</h3><p class="sub">Share of the $2,261,536.78 total</p><div class="tw"><table id="regTable"></table></div>
+          <div class="note">Insight: South is the weakest region and has the most room to grow — a good target for promotions (see Forecasting recommendations).</div></div>
+        <div class="card" style="margin-top:16px"><h3>Top 5 products</h3><p class="sub">Ranked by total sales</p><div class="tw"><table id="prodTable"></table></div></div>
+      </section>
+
+      <section class="page" id="page-revenue">
+        <div class="head"><div class="eyebrow">REVENUE REPORT</div><h1>Total Revenue</h1><p>Revenue summary for January 2015 – December 2018.</p></div>
+        <div class="card big"><div class="ml" style="color:#65520a">TOTAL REVENUE (4 YEARS)</div><div class="mv">$2,261,536.78</div><div class="ml" style="color:#725c08">Same figure confirmed in MySQL, Python and Power BI (2.26M).</div></div>
+        <div class="cards" style="grid-template-columns:repeat(3,1fr);margin-top:14px">
+          <div class="card"><div class="ml">Unique orders</div><div class="mv">4,922</div></div>
+          <div class="card"><div class="ml">Average per order</div><div class="mv">$459.48</div></div>
+          <div class="card"><div class="ml">Dataset records</div><div class="mv">9,800</div></div>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Revenue by category</h3><p class="sub">Category share of overall revenue</p><div class="cb"><canvas id="c4"></canvas></div></div>
+          <div class="card"><h3>Revenue by category (US dollars)</h3><p class="sub">Exact totals from SQL Query 3</p><div class="tw"><table id="catTable"></table></div>
+            <div class="note">Technology leads by only about 5.4 percentage points over Office Supplies, showing a healthy, diversified product mix.</div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h3>Yearly sales trend</h3><p class="sub">Approximate yearly totals read from the Power BI trend chart</p><div class="cb"><canvas id="c5"></canvas></div>
+          <div class="note">Sales dipped slightly in 2016 and then rose each year, with 2018 the strongest year.</div></div>
+      </section>
+
+      <section class="page" id="page-forecast">
+        <div class="head"><div class="eyebrow">PREDICTIVE ANALYSIS</div><h1>Sales Forecasting</h1><p>Six-month forecast (Jan–Jun 2019) using Holt-Winters Exponential Smoothing.</p></div>
+        <div class="cards">
+          <div class="card"><div class="ml">Forecast method</div><div class="mv" style="font-size:20px">Holt-Winters</div><div class="mn">Additive trend + seasonality</div></div>
+          <div class="card"><div class="ml">Forecast horizon</div><div class="mv">6 months</div><div class="mn">Jan – Jun 2019</div></div>
+          <div class="card"><div class="ml">Projected H1 2019</div><div class="mv">$354,652</div><div class="mn">Total of six months</div></div>
+          <div class="card"><div class="ml">Peak month</div><div class="mv">March</div><div class="mn">$71,942.66</div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h3>Forecast sales by month</h3><p class="sub">Holt-Winters output · US dollars</p><div class="cb"><canvas id="c6"></canvas></div></div>
+        <div class="card" style="margin-top:16px"><h3>Forecast details</h3><p class="sub">Values from forecast.py (sales_forecast.csv)</p><div class="tw"><table id="fcTable"></table></div>
+          <div class="note">The model assumes the 2015–2018 seasonal pattern continues. It is a statistical estimate, not a guarantee — review it each quarter as new data arrives.</div></div>
+        <div class="card desc" style="margin-top:16px"><h3>Recommendations</h3><ul>
+          <li><b>Jan–Feb:</b> reduce replenishment orders by 15–20% versus Q4 2018 and avoid major launches.</li>
+          <li><b>March:</b> stock top-performing items 3–4 weeks ahead of the forecast peak.</li>
+          <li><b>Apr–Jun:</b> keep inventory steady and run targeted promotions in the South region during May–June.</li>
+          <li><b>Planning:</b> use the H1 total of $354,652 as the benchmark for variance analysis.</li></ul></div>
+      </section>
+
+      <section class="page" id="page-charts">
+        <div class="head"><div class="eyebrow">VISUAL REPORTS</div><h1>Charts &amp; Reports</h1><p>The main project charts together on one page.</p></div>
+        <div class="grid2" style="margin-top:0">
+          <div class="card"><h3>Monthly sales (selected months)</h3><p class="sub">US dollars</p><div class="cb"><canvas id="r1"></canvas></div></div>
+          <div class="card"><h3>Category share</h3><p class="sub">Contribution by category</p><div class="cb"><canvas id="r2"></canvas></div></div>
+          <div class="card"><h3>Regional sales</h3><p class="sub">US dollars</p><div class="cb"><canvas id="r3"></canvas></div></div>
+          <div class="card"><h3>Forecast Jan–Jun 2019</h3><p class="sub">US dollars</p><div class="cb"><canvas id="r4"></canvas></div></div>
+        </div>
+      </section>
+
+      <section class="page" id="page-products"><div class="head"><div class="eyebrow">PRODUCT PERFORMANCE</div><h1>Top 10 Products</h1><p>Ranked by total sales (SQL Query 4).</p></div>
+        <div class="card"><div class="tw"><table id="topTable"></table></div><div class="note">The Canon imageCLASS 2200 Advanced Copier earns almost three times the revenue of the second-ranked product, so it deserves priority stock attention.</div></div></section>
+
+    </div>
+    <div class="footer">Retail Sales Analysis &amp; Forecasting · 2026–2027 · Source: Kaggle Superstore Sales dataset (9,800 rows)</div>
+  </main>
+</div>
+
+<script>
+/* EDIT THESE TWO VALUES TO SET YOUR LOGIN.
+   Browser-only demo: anyone can read this file, so do not use it to protect private data. */
+const LOGIN_USER='admin', LOGIN_PASS='retail2026';
+
+/* ---- DATA (from the project report) ---- */
+const regions=[['West',710219.68],['East',669518.73],['Central',492646.91],['South',389151.46]];
+const cats=[['Technology',827455.87,'#e9b900'],['Furniture',728658.58,'#83a96b'],['Office Supplies',705422.33,'#f4d96b']];
+const months=[['Jan 15',14236.90],['Jun 15',26718.45],['Nov 15',58144.32],['Jan 16',18542.12],['Dec 16',71289.56],['Nov 17',82410.78],['Dec 18',94512.34]];
+const years=[['2015',480000],['2016',460000],['2017',600000],['2018',720000]];
+const fc=[['January 2019',49392.65,'Post-holiday slowdown'],['February 2019',41599.82,'Lowest forecast month'],['March 2019',71942.66,'Spring uptick peak'],['April 2019',60875.43,'Steady mid-spring demand'],['May 2019',68133.95,'Strong pre-summer demand'],['June 2019',62707.81,'Steady mid-year']];
+const prods=[['Canon imageCLASS 2200 Advanced Copier',61599.82],['Fellowes PB500 Electric Punch Plastic Comb Binding Machine',27453.38],['Cisco TelePresence System EX90 Videoconferencing Unit',22638.48],['HON 5400 Series Task Chairs for Big and Tall',21870.58],['GBC DocuBind TL300 Electric Binding System',19823.48]];
+const TOTAL=2261536.78;
+const usd=v=>'$'+v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=v=>(v/TOTAL*100).toFixed(2)+'%';
+const short=v=>v>=1e6?'$'+(v/1e6).toFixed(2)+'M':v>=1e3?'$'+Math.round(v/1e3)+'K':'$'+v;
+
+/* ---- TABLES AND BARS ---- */
+const tbl=(id,head,rows)=>document.getElementById(id).innerHTML='<thead><tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</tbody>';
+tbl('regTable',['Region','Sales (USD)','Share','Performance'],regions.map((r,i)=>[r[0],usd(r[1]),pct(r[1]),'<span class="tag'+(i>2?' w':'')+'">'+(i<2?'Strong':i==2?'Stable':'Growth opportunity')+'</span>']));
+tbl('prodTable',['Rank','Product','Sales (USD)'],prods.map((p,i)=>[i+1,p[0],usd(p[1])]));
+tbl('catTable',['Category','Sales (USD)','Share'],cats.map(c=>[c[0],usd(c[1]),pct(c[1])]));
+tbl('fcTable',['Period','Forecast sales (USD)','Interpretation'],fc.map(f=>[f[0],usd(f[1]),'<span class="tag">'+f[2]+'</span>']));
+document.getElementById('catBars').innerHTML=cats.map(c=>'<div class="bar"><span>'+c[0]+'</span><div class="track"><div class="fill" style="width:'+(c[1]/TOTAL*100*2)+'%"></div></div><b>'+pct(c[1])+'</b></div>').join('');
+
+/* ---- CHART HELPERS (plain canvas, no libraries) ---- */
+function setup(id){const c=document.getElementById(id),r=c.getBoundingClientRect(),d=devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;const x=c.getContext('2d');x.scale(d,d);x.clearRect(0,0,r.width,r.height);return[x,r.width,r.height]}
+function bars(id,data,color){const[x,W,H]=setup(id),p={l:46,r:8,t:12,b:26},mx=Math.max(...data.map(d=>d[1]))*1.1,bw=(W-p.l-p.r)/data.length;x.font='11px Arial';x.textAlign='center';
+ for(let i=0;i<=4;i++){const y=H-p.b-(H-p.t-p.b)*i/4;x.strokeStyle='#eee7cc';x.beginPath();x.moveTo(p.l,y);x.lineTo(W-p.r,y);x.stroke();x.fillStyle='#718096';x.textAlign='right';x.fillText(short(mx*i/4),p.l-6,y+4)}
+ x.textAlign='center';data.forEach((d,i)=>{const h=(H-p.t-p.b)*d[1]/mx,bx=p.l+i*bw+bw*.18;x.fillStyle=color;x.fillRect(bx,H-p.b-h,bw*.64,h);x.fillStyle='#718096';x.fillText(d[0],bx+bw*.32,H-8)})}
+function line(id,data,color){const[x,W,H]=setup(id),p={l:46,r:14,t:14,b:26},mx=Math.max(...data.map(d=>d[1]))*1.1,mn=Math.min(...data.map(d=>d[1]))*.8,st=(W-p.l-p.r)/(data.length-1),Y=v=>H-p.b-(H-p.t-p.b)*(v-mn)/(mx-mn);x.font='11px Arial';
+ for(let i=0;i<=4;i++){const v=mn+(mx-mn)*i/4,y=Y(v);x.strokeStyle='#eee7cc';x.beginPath();x.moveTo(p.l,y);x.lineTo(W-p.r,y);x.stroke();x.fillStyle='#718096';x.textAlign='right';x.fillText(short(v),p.l-6,y+4)}
+ x.strokeStyle=color;x.lineWidth=2.5;x.beginPath();data.forEach((d,i)=>{const px=p.l+i*st;i?x.lineTo(px,Y(d[1])):x.moveTo(px,Y(d[1]))});x.stroke();x.textAlign='center';
+ data.forEach((d,i)=>{const px=p.l+i*st;x.fillStyle=color;x.beginPath();x.arc(px,Y(d[1]),4,0,7);x.fill();x.fillStyle='#718096';x.fillText(d[0],px,H-8)})}
+function donut(id,data){const[x,W,H]=setup(id),cx=W/2,cy=H/2,R=Math.min(W,H)/2-14,t=data.reduce((a,d)=>a+d[1],0);let a=-Math.PI/2;
+ data.forEach(d=>{const s=d[1]/t*Math.PI*2;x.fillStyle=d[2];x.beginPath();x.moveTo(cx,cy);x.arc(cx,cy,R,a,a+s);x.fill();const m=a+s/2;x.fillStyle='#263238';x.font='bold 12px Arial';x.textAlign='center';x.fillText((d[1]/t*100).toFixed(1)+'%',cx+Math.cos(m)*R*.8,cy+Math.sin(m)*R*.8+4);a+=s});
+ x.fillStyle='#fff';x.beginPath();x.arc(cx,cy,R*.5,0,7);x.fill();x.fillStyle='#263238';x.font='bold 15px Arial';x.fillText('$2.26M',cx,cy+5)}
+const rc=regions.map(r=>[r[0],r[1]]), fm=fc.map(f=>[f[0].slice(0,3),f[1]]);
+const draw={overview:()=>{bars('c1',months,'#e9b900');donut('c2',cats)},analytics:()=>bars('c3',rc,'#e9b900'),revenue:()=>{donut('c4',cats);bars('c5',years,'#83a96b')},forecast:()=>line('c6',fm,'#5d9b45'),charts:()=>{bars('r1',months,'#e9b900');donut('r2',cats);bars('r3',rc,'#e9b900');line('r4',fm,'#5d9b45')}};
+
+/* ---- LOGIN AND NAVIGATION ---- */
+let cur='overview';
+document.getElementById('loginForm').addEventListener('submit',e=>{e.preventDefault();
+ if(username.value===LOGIN_USER&&password.value===LOGIN_PASS){loginScreen.classList.add('hidden');app.classList.remove('hidden');draw[cur]()}
+ else error.textContent='Incorrect username or password.'});
+logoutBtn.onclick=()=>{app.classList.add('hidden');loginScreen.classList.remove('hidden');password.value='';error.textContent=''};
+mm.onclick=()=>sidebar.classList.toggle('open');
+document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('.nav-btn,.page').forEach(n=>n.classList.remove('active'));b.classList.add('active');
+ cur=b.dataset.page;document.getElementById('page-'+cur).classList.add('active');crumb.textContent='Workspace / '+b.textContent;sidebar.classList.remove('open');draw[cur]()});
+addEventListener('resize',()=>{if(!app.classList.contains('hidden'))draw[cur]()});
+/* ---- v2 additional pages ---- */
+const T=(id,h,rows)=>document.getElementById(id).innerHTML='<tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(x=>'<td>'+x+'</td>').join('')+'</tr>').join('');
+T('topTable',['Rank','Product name','Total sales ($)'],[['Canon imageCLASS 2200 Advanced Copier','61,599.82'],['Fellowes PB500 Electric Punch Plastic Comb Binding Machine','27,453.38'],['Cisco TelePresence System EX90 Videoconferencing Unit','22,638.48'],['HON 5400 Series Task Chairs for Big and Tall','21,870.58'],['GBC DocuBind TL300 Electric Binding System','19,823.48'],['GBC Ibimaster 500 Manual ProClick Binding System','19,024.50'],['Hewlett Packard LaserJet 3310 Copier','18,839.69'],['HP Designjet T520 Inkjet Large Format Printer','18,374.90'],['GBC DocuBind P400 Electric Binding System','17,965.07'],['High Speed Automatic Electric Letter Opener','17,030.31']].map((r,i)=>[i+1,...r]));
+['products'].forEach(k=>draw[k]=()=>{});
+</script>
+</body>
+</html>
